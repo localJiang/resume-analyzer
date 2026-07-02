@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String        @db.VarChar(255)
+  passwordHash String        @map("password_hash") @db.VarChar(255)
+  role         String        @default("USER") @db.VarChar(50)
+  status       String        @default("active") @db.VarChar(50)
+
+  profile      UserProfile?
+  resumes      Resume[]
+  analyses     Analysis[]
+
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz()
+  deletedAt    DateTime?     @map("deleted_at") @db.Timestamptz()
+
+  @@index([email])
+  @@index([status])
+  @@map("users")
+}
+
+model UserProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  avatarUrl String?  @map("avatar_url") @db.Text
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@map("user_profiles")
+}
+
+model Resume {
+  id               String   @id @default(uuid())
+  userId           String   @map("user_id")
+  originalFilename String   @map("original_filename") @db.VarChar(500)
+  fileType         String   @map("file_type") @db.VarChar(10)
+  fileSizeBytes    Int      @map("file_size_bytes")
+  parsedText       String   @map("parsed_text") @db.Text
+
+  user             User     @relation(fields: [userId], references: [id])
+  analysis         Analysis?
+
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("resumes")
+}
+
+model Analysis {
+  id              String   @id @default(uuid())
+  resumeId        String   @unique @map("resume_id")
+  userId          String   @map("user_id")
+  status          String   @default("PENDING") @db.VarChar(50)
+  overallScore    Int?     @map("overall_score")
+  dimensionScores Json?    @map("dimension_scores") @db.JsonB
+  llmModel        String   @map("llm_model") @db.VarChar(100)
+  startedAt       DateTime? @map("started_at") @db.Timestamptz()
+  completedAt     DateTime? @map("completed_at") @db.Timestamptz()
+
+  resume          Resume   @relation(fields: [resumeId], references: [id])
+  user            User     @relation(fields: [userId], references: [id])
+  results         AnalysisResult[]
+
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@index([userId])
+  @@index([status])
+  @@map("analyses")
+}
+
+model AnalysisResult {
+  id           String   @id @default(uuid())
+  analysisId   String   @map("analysis_id")
+  dimension    String   @map("dimension") @db.VarChar(50)
+  severity     String   @default("MEDIUM") @db.VarChar(10)
+  title        String   @db.VarChar(500)
+  description  String   @db.Text
+  suggestion   String   @db.Text
+  positionHint String?  @map("position_hint") @db.VarChar(255)
+
+  analysis     Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  @@index([analysisId])
+  @@index([dimension, severity])
+  @@map("analysis_results")
+}

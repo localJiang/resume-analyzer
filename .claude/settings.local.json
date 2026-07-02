@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx next *)",
+      "Bash(mkdir -p \"src/app/api/analysis/[id]\")"
+    ],
+    "additionalDirectories": [
+      "/Users/qiaodaima/Documents/ai_project/resume-analyzer/src/app/api/analysis"
+    ]
+  }
+}
