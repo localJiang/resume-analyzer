@@ -43,6 +43,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.0",
+    "prisma": "^6.0.0",
     "sonner": "^2.0.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^4.3.2",
@@ -63,8 +64,6 @@
     "postcss": "^8.5.16",
     "prettier": "^3.4.0",
     "prettier-plugin-tailwindcss": "^0.6.0",
-    "prisma": "^6.0.0",
-    "tsx": "^4.22.4",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
   },
