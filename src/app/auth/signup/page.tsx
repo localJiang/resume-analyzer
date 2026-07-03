@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserClient } from '@supabase/ssr';
+
+export const dynamic = 'force-dynamic';
 import {
   Card,
   CardHeader,
